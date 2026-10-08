@@ -63,12 +63,12 @@ static Bytes appleLikeUac1() {
     put(c, {9, 0x04, 1, 1, 1, 0x01, 0x02, 0, 0});
     put(c, {7, 0x24, 0x01, 1, 1, 0x01, 0x00});  // AS general, PCM
     put(c, {14, 0x24, 0x02, 0x01, 2, 3, 24, 2, 0x44, 0xAC, 0x00, 0x80, 0xBB, 0x00});  // 24-bit, 44.1/48k
-    put(c, {9, 0x05, 0x01, 0x09, 0x28, 0x01, 1, 0, 0});  // EP1 OUT iso adaptive, 296 bytes
+    put(c, {9, 0x05, 0x01, 0x0D, 0x20, 0x01, 1, 0, 0});  // EP1 OUT iso sync, 288 bytes (real device)
     put(c, {7, 0x25, 0x01, 0x01, 0, 0, 0});  // CS EP: sampling freq control
     put(c, {9, 0x04, 1, 2, 1, 0x01, 0x02, 0, 0});
     put(c, {7, 0x24, 0x01, 1, 1, 0x01, 0x00});
     put(c, {14, 0x24, 0x02, 0x01, 2, 2, 16, 2, 0x44, 0xAC, 0x00, 0x80, 0xBB, 0x00});  // 16-bit
-    put(c, {9, 0x05, 0x01, 0x09, 0xC8, 0x00, 1, 0, 0});
+    put(c, {9, 0x05, 0x01, 0x0D, 0xC0, 0x00, 1, 0, 0});  // 192 bytes
     put(c, {7, 0x25, 0x01, 0x01, 0, 0, 0});
     // AS interface 2 (capture)
     put(c, {9, 0x04, 2, 0, 0, 0x01, 0x02, 0, 0});
@@ -197,7 +197,11 @@ static void testAppleDescriptor() {
     CHECK(alts.size() == 2);
     CHECK(alts[0]->bitResolution == 24 && alts[0]->subslotBytes == 3 && alts[0]->channels == 2);
     CHECK(alts[0]->rates.size() == 2 && alts[0]->supportsRate(48000) && alts[0]->supportsRate(44100));
-    CHECK(alts[0]->data.address == 0x01 && alts[0]->data.syncType() == 2);
+    CHECK(alts[0]->data.address == 0x01 && alts[0]->data.syncType() == 3);
+    // Reported by a real Apple adapter: 288 B / 192 B packets must allow 48 kHz at full speed.
+    CHECK(alts[0]->fitsRate(48000, 1000, false) && alts[1]->fitsRate(48000, 1000, false));
+    CHECK(alts[0]->fitsRate(44100, 1000, false) && alts[1]->fitsRate(44100, 1000, false));
+    CHECK(!alts[0]->fitsRate(96000, 1000, false));
     CHECK(alts[0]->sampleRateControl);
     CHECK(f.alts.size() == 3 && !f.alts[2].isPlayback());
 }

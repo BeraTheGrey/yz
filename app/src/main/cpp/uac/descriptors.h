@@ -97,6 +97,11 @@ struct StreamingAlt {
     bool isPlayback() const { return data.valid() && !data.isIn(); }
     int frameBytes() const { return channels * subslotBytes; }
     bool supportsRate(uint32_t rate) const;
+    // True if the largest packet at `rate` fits the endpoint. Only the whole
+    // frames the rate needs are required (ceil): synchronous/adaptive DACs such
+    // as the Apple adapter size wMaxPacketSize exactly (288 B = 48 x 6 B at
+    // 48 kHz). The packet clock clamps feedback-driven extra frames anyway.
+    bool fitsRate(uint32_t rate, uint32_t packetsPerSecond, bool highSpeed) const;
 };
 
 struct AudioFunction {

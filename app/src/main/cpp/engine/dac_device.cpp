@@ -280,9 +280,7 @@ const uac::StreamingAlt* DacDevice::chooseAlt(uint32_t sourceRate, int sourceCha
         return r;
     };
     auto fits = [&](const uac::StreamingAlt* a, uint32_t rate) {
-        const uint32_t pps = packetsPerSecond(*a);
-        const uint32_t maxFrames = (rate + pps - 1) / pps + 1;
-        return static_cast<int>(maxFrames) * a->frameBytes() <= a->data.bytesPerInterval(highSpeed());
+        return a->fitsRate(rate, packetsPerSecond(*a), highSpeed());
     };
     auto supports = [&](const uac::StreamingAlt* a, uint32_t rate) {
         auto r = rates(a);

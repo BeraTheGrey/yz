@@ -225,6 +225,12 @@ bool StreamingAlt::supportsRate(uint32_t rate) const {
     return std::find(rates.begin(), rates.end(), rate) != rates.end();
 }
 
+bool StreamingAlt::fitsRate(uint32_t rate, uint32_t packetsPerSecond, bool highSpeed) const {
+    if (packetsPerSecond == 0 || frameBytes() <= 0) return false;
+    const uint32_t frames = (rate + packetsPerSecond - 1) / packetsPerSecond;
+    return static_cast<int64_t>(frames) * frameBytes() <= data.bytesPerInterval(highSpeed);
+}
+
 const Terminal* AudioFunction::terminal(uint8_t id) const {
     for (const auto& t : terminals)
         if (t.id == id) return &t;
