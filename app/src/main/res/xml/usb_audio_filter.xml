@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Apple USB-C to 3.5 mm Headphone Jack Adapter (US A2049 / EU A2155) -->
+    <usb-device vendor-id="1452" product-id="4362" />
+    <!-- Any USB Audio Class device (matched on device or interface class) -->
+    <usb-device class="1" />
+</resources>
